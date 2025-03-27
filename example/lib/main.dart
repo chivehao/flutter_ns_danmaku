@@ -15,10 +15,12 @@ void main() async {
   //     DeviceOrientation.landscapeLeft,
   //   ],
   // );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,13 +28,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -40,7 +42,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late DanmakuController _controller;
-  var _key = new GlobalKey<ScaffoldState>();
+  final _key = GlobalKey<ScaffoldState>();
 
   final _danmuKey = GlobalKey();
 
@@ -59,11 +61,11 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       key: _key,
       appBar: AppBar(
-        title: Text('Demo'),
+        title: const Text('Demo'),
         actions: [
           Center(child: Text("running : $_running")),
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             tooltip: 'Add',
             onPressed: () {
               _controller.addItems([
@@ -84,26 +86,26 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.play_circle_outline_outlined),
+            icon: const Icon(Icons.play_circle_outline_outlined),
             onPressed: startPlay,
             tooltip: 'Start Player',
           ),
           IconButton(
-            icon: Icon(Icons.pause),
+            icon: const Icon(Icons.pause),
             onPressed: () {
               _controller.pause();
             },
             tooltip: 'Pause',
           ),
           IconButton(
-            icon: Icon(Icons.play_arrow),
+            icon: const Icon(Icons.play_arrow),
             onPressed: () {
               _controller.resume();
             },
             tooltip: 'Resume',
           ),
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () {
               _key.currentState?.openEndDrawer();
             },
@@ -133,7 +135,7 @@ class _HomePageState extends State<HomePage> {
       endDrawer: Drawer(
         child: SafeArea(
           child: ListView(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             children: [
               Text("Opacity : $_opacity"),
               Slider(
@@ -206,7 +208,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               SwitchListTile(
-                title: Text("Stroke Text"),
+                title: const Text("Stroke Text"),
                 value: _strokeText,
                 onChanged: (e) {
                   setState(() {
@@ -217,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               SwitchListTile(
-                title: Text("Hide Top"),
+                title: const Text("Hide Top"),
                 value: _hideTop,
                 onChanged: (e) {
                   setState(() {
@@ -228,7 +230,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               SwitchListTile(
-                title: Text("Hide Bottom"),
+                title: const Text("Hide Bottom"),
                 value: _hideBottom,
                 onChanged: (e) {
                   setState(() {
@@ -239,7 +241,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               SwitchListTile(
-                title: Text("Hide Scroll"),
+                title: const Text("Hide Scroll"),
                 value: _hideScroll,
                 onChanged: (e) {
                   setState(() {
@@ -250,7 +252,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                title: Text("Clear"),
+                title: const Text("Clear"),
                 onTap: () {
                   _controller.clear();
                 },
@@ -267,7 +269,7 @@ class _HomePageState extends State<HomePage> {
   Map<int, List<DanmakuItem>> _danmuItems = {};
   void startPlay() async {
     String data = await rootBundle.loadString('assets/132590001.json');
-    List<DanmakuItem> _items = [];
+    List<DanmakuItem> items = [];
     var jsonMap = json.decode(data);
     for (var item in jsonMap['comments']) {
       var p = item["p"].toString().split(',');
@@ -280,23 +282,22 @@ class _HomePageState extends State<HomePage> {
       }
       var color = int.parse(p[2]).toRadixString(16).padLeft(6, "0");
 
-      _items.add(DanmakuItem(
+      items.add(DanmakuItem(
         item['m'],
         time: double.parse(p[0]).toInt(),
-        color: Color(int.parse("FF" + color, radix: 16)),
+        color: Color(int.parse("FF$color", radix: 16)),
         type: type,
       ));
     }
-    _danmuItems = groupBy(_items, (DanmakuItem obj) => obj.time);
+    _danmuItems = groupBy(items, (DanmakuItem obj) => obj.time);
     sec = 0;
-    if (timer == null) {
-      timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    timer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
         if (!_controller.running) return;
-        if (_danmuItems.containsKey(sec))
+        if (_danmuItems.containsKey(sec)) {
           _controller.addItems(_danmuItems[sec]!);
+        }
         sec++;
       });
-    }
   }
 
   @override
